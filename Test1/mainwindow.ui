@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGraphicsView" name="TestView">
+   <widget class="QGraphicsView" name="View">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Uur</string>
+     <string>Uur + min</string>
     </property>
    </widget>
    <widget class="QPushButton" name="DayBut">
@@ -47,7 +47,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Dag</string>
+     <string>Datum + tijd</string>
     </property>
    </widget>
    <widget class="QPushButton" name="WeekBut">
@@ -60,7 +60,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Week</string>
+     <string>Weekdag</string>
     </property>
    </widget>
    <widget class="QSplitter" name="Lines">

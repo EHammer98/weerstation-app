@@ -14,11 +14,32 @@ MainWindow::MainWindow(QWidget *parent)
     db.setUserName("bpeters4");
     db.setPassword("Ab12345");
 
+   //Check connection
    if (db.open()){
-       QMessageBox::information(this, "Succesfull", "Connection to database established");
+       qModel = new QSqlQueryModel();
+       qModel->setQuery("SELECT count(ID) FROM tblsensordata");
+       max = qModel->record(0).value("count(ID)").toInt();
+
+       qModel->setQuery("SELECT intStationErrors FROM tblsensordata");
+       int count = 0;
+       for(int i = 0; i < max; i++){
+           int temp = qModel->record(i).value("intStationErrors").toInt();                          //An error from stm32
+           if(temp != 0){
+              count++;
+           }
+       }
+       if(count == 0){
+           QMessageBox::information(this, "Succesfull", "Connection to database established");      //No errors
+       }else{
+           QMessageBox::information(this, "ERROR", "Connection to STM32 failed");                   //1 or more errors from stm32
+           db.close();
+           delete ui;
+       }
+
 
    }else{
-       QMessageBox::information(this, "ERROR", "Connection to database failed");
+       QMessageBox::information(this, "ERROR", "Connection to database failed");                    //An error with connection to database
+       delete ui;
    }
 }
 
@@ -31,10 +52,6 @@ MainWindow::~MainWindow()
 //Create Chart
 void MainWindow::Setup()
 {
-     qModel = new QSqlQueryModel();
-     qModel->setQuery("SELECT count(ID) FROM tblsensordata");
-     max = qModel->record(0).value("count(ID)").toInt();
-
     chart->legend()->hide();
     chart->setTitle("WeatherStation Group E");
     chart->title();
@@ -58,6 +75,7 @@ void MainWindow::TemperatureLine()
     int temp = qModel->record(i).value("intTemp").toInt();
     QDateTime temp2;
     temp2 = qModel->record(i).value("dtDateTime").toDateTime();
+    temp2 = temp2.addSecs(-60 * 60);                                        //Change time to wintertime instead of summertime
     TempLine->append(temp2.toMSecsSinceEpoch(), temp);
     }
     chart->addSeries(TempLine);
@@ -84,6 +102,7 @@ void MainWindow::PressureLine()
     int temp = qModel->record(i).value("intPress").toInt();
     QDateTime temp2;
     temp2 = qModel->record(i).value("dtDateTime").toDateTime();
+    temp2 = temp2.addSecs(-60 * 60);                                        //Change time to wintertime instead of summertime
     PresLine->append(temp2.toMSecsSinceEpoch(), temp);
     }
     chart->addSeries(PresLine);
@@ -110,6 +129,7 @@ void MainWindow::HumidityLine()
     int temp = qModel->record(i).value("intHum").toInt();
     QDateTime temp2;
     temp2 = qModel->record(i).value("dtDateTime").toDateTime();
+    temp2 = temp2.addSecs(-60 * 60);                                        //Change time to wintertime instead of summertime
     HumLine->append(temp2.toMSecsSinceEpoch(), temp);
     }
     chart->addSeries(HumLine);
@@ -124,15 +144,17 @@ void MainWindow::HumidityLine()
     y->setTitleBrush(HumLine->pen().color());
 }
 
+//Set chart in view to show it
 void MainWindow::ShowChart()
 {
     chart->resize(1000,600);
     QGraphicsScene *scene = new QGraphicsScene;
     scene->addItem(chart);
 
-    ui->TestView->setScene(scene);
+    ui->View->setScene(scene);
 }
 
+//Hide or show Temperatureline in chart
 void MainWindow::on_TempBut_clicked(bool checked)
 {
     if(checked == true){
@@ -142,6 +164,7 @@ void MainWindow::on_TempBut_clicked(bool checked)
     }
 }
 
+//Hide or show Pressureline in chart
 void MainWindow::on_PresBut_clicked(bool checked)
 {
     if(checked == true){
@@ -151,6 +174,7 @@ void MainWindow::on_PresBut_clicked(bool checked)
     }
 }
 
+//Hide or show Humidityline in chart
 void MainWindow::on_HumBut_clicked(bool checked)
 {
     if(checked == true){
@@ -160,18 +184,21 @@ void MainWindow::on_HumBut_clicked(bool checked)
     }
 }
 
+//Change Format from X-axis to date with time
 void MainWindow::on_DayBut_clicked()
 {
     Formatx = "dd/MM hh:mm";
     x->setFormat(Formatx);
 }
 
+//Change Format from X-axis to hours and minutes
 void MainWindow::on_HourBut_clicked()
 {
     Formatx = "hh:mm";
     x->setFormat(Formatx);
 }
 
+//Change Format from X-axis to weekday
 void MainWindow::on_WeekBut_clicked()
 {
     Formatx = "dddd";
