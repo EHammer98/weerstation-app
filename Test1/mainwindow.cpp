@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     //setup database connection
-
     ui->setupUi(this);
     db.setHostName("databases.aii.avans.nl");
     db.setPort(3306);
@@ -24,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
        int count = 0;
        for(int i = 0; i < max; i++){
            int temp = qModel->record(i).value("intStationErrors").toInt();                          //An error from stm32
-           if(temp != 0){
+           if(temp != 1){
               count++;
            }
        }
@@ -75,7 +74,7 @@ void MainWindow::TemperatureLine()
     int temp = qModel->record(i).value("intTemp").toInt();
     QDateTime temp2;
     temp2 = qModel->record(i).value("dtDateTime").toDateTime();
-    temp2 = temp2.addSecs(-60 * 60);                                        //Change time to wintertime instead of summertime
+    temp2 = temp2.addSecs(60 * 60);                                        //Add 1 hour to time for correct time
     TempLine->append(temp2.toMSecsSinceEpoch(), temp);
     }
     chart->addSeries(TempLine);
@@ -102,7 +101,7 @@ void MainWindow::PressureLine()
     int temp = qModel->record(i).value("intPress").toInt();
     QDateTime temp2;
     temp2 = qModel->record(i).value("dtDateTime").toDateTime();
-    temp2 = temp2.addSecs(-60 * 60);                                        //Change time to wintertime instead of summertime
+    temp2 = temp2.addSecs(60 * 60);                                        //Add 1 hour to time for correct time
     PresLine->append(temp2.toMSecsSinceEpoch(), temp);
     }
     chart->addSeries(PresLine);
@@ -129,7 +128,7 @@ void MainWindow::HumidityLine()
     int temp = qModel->record(i).value("intHum").toInt();
     QDateTime temp2;
     temp2 = qModel->record(i).value("dtDateTime").toDateTime();
-    temp2 = temp2.addSecs(-60 * 60);                                        //Change time to wintertime instead of summertime
+    temp2 = temp2.addSecs(60 * 60);                                        //Add 1 hour to time for correct time
     HumLine->append(temp2.toMSecsSinceEpoch(), temp);
     }
     chart->addSeries(HumLine);
@@ -147,20 +146,27 @@ void MainWindow::HumidityLine()
 //Set chart in view to show it
 void MainWindow::ShowChart()
 {
-    chart->resize(1000,600);
-    QGraphicsScene *scene = new QGraphicsScene;
-    scene->addItem(chart);
+    chart->resize(ui->View->width() - 20, ui->View->height() - 20);
 
+    scene->addItem(chart);
     ui->View->setScene(scene);
+}
+
+//When window resizes change size chart
+void MainWindow::resizeEvent(QResizeEvent *e)
+{
+    QWidget::resizeEvent(e);
+
+    chart->resize(ui->View->width() - 20, ui->View->height() - 20);
 }
 
 //Hide or show Temperatureline in chart
 void MainWindow::on_TempBut_clicked(bool checked)
 {
     if(checked == true){
-        TempLine->hide();
-    }else{
         TempLine->show();
+    }else{
+        TempLine->hide();
     }
 }
 
@@ -168,9 +174,9 @@ void MainWindow::on_TempBut_clicked(bool checked)
 void MainWindow::on_PresBut_clicked(bool checked)
 {
     if(checked == true){
-        PresLine->hide();
-    }else{
         PresLine->show();
+    }else{
+        PresLine->hide();
     }
 }
 
@@ -178,9 +184,9 @@ void MainWindow::on_PresBut_clicked(bool checked)
 void MainWindow::on_HumBut_clicked(bool checked)
 {
     if(checked == true){
-        HumLine->hide();
-    }else{
         HumLine->show();
+    }else{
+        HumLine->hide();
     }
 }
 

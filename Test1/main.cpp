@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
     w.TemperatureLine();
     w.PressureLine();
     w.HumidityLine();
-    w.ShowChart();
-    w.resize(1250, 800);
     w.show();
+    w.ShowChart();
     return a.exec();
 }

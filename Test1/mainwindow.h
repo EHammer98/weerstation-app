@@ -20,6 +20,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 #include <QtCharts/QValueAxis>
+#include <QResizeEvent>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -38,6 +39,9 @@ public:
         void HumidityLine();
         void ShowChart();
 
+protected:
+        void resizeEvent(QResizeEvent *e);
+
 private slots:
         void on_TempBut_clicked(bool checked);
 
@@ -53,19 +57,21 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");    // create batabase
-    QSqlQueryModel *qModel;                                  //The QSqlQueryModel class provides a read-only data model for SQL result sets
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");      //Create batabase
+    QSqlQueryModel *qModel;                                     //The QSqlQueryModel class provides a read-only data model for SQL result sets
 
-    QChart *chart = new QChart();
-    QDateTimeAxis *x = new QDateTimeAxis;
+    QChart *chart = new QChart();                               //Create chart
+    QDateTimeAxis *x = new QDateTimeAxis;                       //Create x axis
 
+    //Create lines
     QLineSeries *TempLine = new QLineSeries;
     QLineSeries *PresLine = new QLineSeries;
     QLineSeries *HumLine = new QLineSeries;
 
-    QString Formatx;
-    int max;
+    QGraphicsScene *scene = new QGraphicsScene;                 //Create GraphicsScene for chart
 
+    QString Formatx;                                            //Create string for changing format X axis
+    int max;                                                    //Create integer for setting the amount rows of data
 };
 
 
